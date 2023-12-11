@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify OTP</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <style>
+      .otp-input {
+        width: 3em;
+        margin: 0 5px;
+        text-align: center;
+      }
+      .verify-otp-title {
+        display: inline;
+      }
+      .button-group {
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="text-center mb-4">
+            <h2 class="verify-otp-title">Verify OTP</h2>
+          </div>
+          <form id="otpForm" action="/verify-otp" method="post">
+            <div class="form-group d-flex justify-content-center">
+              <% for(let i = 1; i <= 6; i++) { %>
+              <input
+                type="text"
+                class="form-control otp-input"
+                name="otp<%= i %>"
+                maxlength="1"
+                required
+              />
+              <% } %>
+            </div>
+            <div class="button-group text-center">
+              <button type="submit" class="btn btn-primary">Verify OTP</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="window.location='/auth/login';"
+              >
+                Back to Login
+              </button>
+              <button type="reset" class="btn btn-warning">Reset</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+      function moveToNext(el, index) {
+        if (el.value.length === 1 && index < 6) {
+          document
+            .querySelector('input[name="otp' + (index + 1) + '"]')
+            .focus();
+        } else if (el.value.length === 0 && index > 1) {
+          document
+            .querySelector('input[name="otp' + (index - 1) + '"]')
+            .focus();
+        }
+      }
+    </script>
+  </body>
+</html>

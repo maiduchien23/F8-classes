@@ -2,6 +2,10 @@ const bcrypt = require("bcrypt");
 const passport = require("passport");
 const model = require("../../../models/index");
 const User = model.User;
+const UserOtp = model.UserOtp;
+const sendEmail = require("../../../utils/send.email");
+const otpGenerator = require("otp-generator");
+const { sendOtpEmail } = require("../../../utils/send.email");
 
 module.exports = {
   login: (req, res) => {
@@ -12,12 +16,36 @@ module.exports = {
     res.render("auth/register", { layout: "layouts/auth.layout.ejs" });
   },
 
-  handleLogin: (req, res, next) => {
-    passport.authenticate("local", {
-      successRedirect: "/",
-      failureRedirect: "/auth/login",
-      failureFlash: true,
-    })(req, res, next);
+  verify_otp: (req, res) => {
+    res.render("auth/verify-otp", { layout: "layouts/auth.layout.ejs" });
+  },
+
+  handleLogin: async (req, res) => {
+    const user = req.user;
+
+    const otp = otpGenerator.generate(6, {
+      digits: true,
+      alphabets: false,
+      upperCase: false,
+      specialChars: false,
+    });
+    const expiry = new Date();
+    expiry.setMinutes(expiry.getMinutes() + 10); // OTP hết hạn sau 10 phút
+
+    await UserOtp.create({
+      userId: user.id,
+      otp: otp,
+      expires: expiry,
+    });
+
+    try {
+      await sendOtpEmail(user.email, otp);
+      res.redirect("/verify-otp");
+    } catch (error) {
+      console.error("Error sending OTP email:", error);
+
+      res.redirect("/auth/login");
+    }
   },
 
   handleRegister: async (req, res) => {
